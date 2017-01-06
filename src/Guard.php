@@ -165,7 +165,8 @@ class Guard
 
             // check the request header if we're using Angular, otherwise check the request body for the csrf token
             if ($this->useAngularCsrf) {
-                $body = $request->getParsedBody();
+                $body = $request->getParams();
+
                 if (array_key_exists(self::ANGULAR_CSRF_HEADER, $body)) {
                     $token = $body[self::ANGULAR_CSRF_HEADER];
                 } else {
