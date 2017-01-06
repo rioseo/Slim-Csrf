@@ -49,7 +49,7 @@ class Guard
      *
      * @var int
      */
-     protected $strength;
+    protected $strength;
 
     /**
      * Callable to be executed if the CSRF validation fails
@@ -165,8 +165,13 @@ class Guard
 
             // check the request header if we're using Angular, otherwise check the request body for the csrf token
             if ($this->useAngularCsrf) {
-                $token = $request->getHeader(self::ANGULAR_CSRF_HEADER);
-                $this->logger->debug('Checking Angular Token', $token);
+                $body = $request->getParsedBody();
+                if (array_key_exists(self::ANGULAR_CSRF_HEADER, $body)) {
+                    $token = $body[self::ANGULAR_CSRF_HEADER];
+                } else {
+                    $token = null;
+                }
+
                 if (!empty($token)) {
                     $parts = explode(':', $token);
                     $name = trim($parts[0]);
@@ -201,7 +206,7 @@ class Guard
             $token = $this->getTokenName() . ':' . $this->getTokenValue();
             if (empty($_COOKIE[self::ANGULAR_CSRF_COOKIE]) || $_COOKIE[self::ANGULAR_CSRF_COOKIE] != $token) {
                 $this->logger->debug('Setting cookie: ' . $token);
-                setcookie(ANGULAR_CSRF_KEY, $token, 0, '/',
+                setcookie(self::ANGULAR_CSRF_COOKIE, $token, 0, '/',
                     \RLS\Session::getCookieDomain($request->getServerParams()['HTTP_HOST']));
             }
         }
