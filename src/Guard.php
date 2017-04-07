@@ -14,7 +14,7 @@ use Psr\Log\LoggerInterface;
  */
 class Guard
 {
-    const ANGULAR_CSRF_COOKIE = 'XSRF-TOKEN';
+    const ANGULAR_CSRF_COOKIE = 'XSRF-TOKEN' . (RLS_MODE != 'production' ? '-' . RLS_MODE : '');
     const ANGULAR_CSRF_HEADER = 'X-XSRF-TOKEN';
 
     /**
