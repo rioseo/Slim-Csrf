@@ -156,7 +156,7 @@ class Guard
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        $cookieName = $this->prefix . '-' . self::ANGULAR_CSRF_COOKIE;
+        $cookieName = $this->prefix . self::ANGULAR_CSRF_COOKIE;
         $this->validateStorage();
 
         // Validate POST, PUT, DELETE, PATCH requests
