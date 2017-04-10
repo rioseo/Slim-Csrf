@@ -14,8 +14,7 @@ use Psr\Log\LoggerInterface;
  */
 class Guard
 {
-    const ANGULAR_CSRF_COOKIE = 'XSRF-TOKEN' . (RLS_MODE != 'production' ? '-' . RLS_MODE : '');
-    const ANGULAR_CSRF_HEADER = 'X-XSRF-TOKEN';
+    const ANGULAR_CSRF_COOKIE = 'XSRF-TOKEN';
 
     /**
      * Prefix for CSRF parameters (omit trailing "_" underscore)
@@ -157,6 +156,7 @@ class Guard
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
+        $cookieName = $this->prefix . '-' . self::ANGULAR_CSRF_COOKIE;
         $this->validateStorage();
 
         // Validate POST, PUT, DELETE, PATCH requests
@@ -167,8 +167,8 @@ class Guard
             if ($this->useAngularCsrf) {
                 $body = $request->getParams();
 
-                if (array_key_exists(self::ANGULAR_CSRF_HEADER, $body)) {
-                    $token = $body[self::ANGULAR_CSRF_HEADER];
+                if (array_key_exists('X-' . $cookieName, $body)) {
+                    $token = $body['X-' . $cookieName];
                 } else {
                     $token = null;
                 }
@@ -205,9 +205,9 @@ class Guard
         // If using Angular we need to set a specific cookie with the token name/value
         if ($this->useAngularCsrf) {
             $token = $this->getTokenName() . ':' . $this->getTokenValue();
-            if (empty($_COOKIE[self::ANGULAR_CSRF_COOKIE]) || $_COOKIE[self::ANGULAR_CSRF_COOKIE] != $token) {
+            if (empty($_COOKIE[$cookieName]) || $_COOKIE[$cookieName] != $token) {
                 $this->logger->debug('Setting cookie: ' . $token);
-                setcookie(self::ANGULAR_CSRF_COOKIE, $token, 0, '/',
+                setcookie($cookieName, $token, 0, '/',
                     \RLS\Session::getCookieDomain($request->getServerParams()['HTTP_HOST']));
             }
         }
