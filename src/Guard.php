@@ -92,6 +92,13 @@ class Guard
     protected $useAngularCsrf;
 
     /**
+     * Flag to whether or not check for CSRF
+     * Use when the authentication is not session based (api instead of browser)
+     * @var bool
+     */
+    protected $byPass = false;
+
+    /**
      * Create new CSRF guard
      *
      * @param string                 $prefix
@@ -156,6 +163,11 @@ class Guard
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
+        // if we want to bypass verification
+        if ($this->isByPass()) {
+            return $next($request, $response);
+        }
+
         $cookieName = $this->prefix . self::ANGULAR_CSRF_COOKIE;
         $this->validateStorage();
 
@@ -523,5 +535,23 @@ class Guard
     {
         $this->logger = $logger;
         return $this;
+    }
+
+    /**
+     * @param bool $byPass
+     * @return $this
+     */
+    public function setByPass(bool $byPass)
+    {
+        $this->byPass = $byPass;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isByPass()
+    {
+        return $this->byPass;
     }
 }
