@@ -179,6 +179,10 @@ class Guard
             if ($this->useAngularCsrf) {
                 $body = $request->getParams();
 
+                if ($request->getMethod() == 'POST' && empty($body)) {
+                    $body = $_POST;
+                }
+
                 if (array_key_exists('X-' . $cookieName, $body)) {
                     $token = $body['X-' . $cookieName];
                 } else {
