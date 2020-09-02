@@ -224,7 +224,8 @@ class Guard
             if (empty($_COOKIE[$cookieName]) || $_COOKIE[$cookieName] != $token) {
                 $this->logger->debug('Setting cookie: ' . $token);
                 setcookie($cookieName, $token, 0, '/',
-                    \RLS\Session::getCookieDomain($request->getServerParams()['HTTP_HOST']));
+                    \RLS\Session::getCookieDomain($request->getServerParams()['HTTP_HOST']), true, false);
+                $_SESSION[$cookieName] = $token;
             }
         }
 
